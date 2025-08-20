@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <!-- Background -->
+  <rect width="256" height="256" fill="#0098EA" rx="24" ry="24"/>
+  
+  <!-- QR Code Pattern -->
+  <g fill="white">
+    <!-- Position detection patterns (corners) -->
+    <!-- Top-left corner -->
+    <rect x="32" y="32" width="48" height="48"/>
+    <rect x="40" y="40" width="32" height="32" fill="#0098EA"/>
+    <rect x="48" y="48" width="16" height="16" fill="white"/>
+    
+    <!-- Top-right corner -->
+    <rect x="176" y="32" width="48" height="48"/>
+    <rect x="184" y="40" width="32" height="32" fill="#0098EA"/>
+    <rect x="192" y="48" width="16" height="16" fill="white"/>
+    
+    <!-- Bottom-left corner -->
+    <rect x="32" y="176" width="48" height="48"/>
+    <rect x="40" y="184" width="32" height="32" fill="#0098EA"/>
+    <rect x="48" y="192" width="16" height="16" fill="white"/>
+    
+    <!-- QR code data modules (simplified pattern) -->
+    <rect x="96" y="32" width="16" height="16"/>
+    <rect x="128" y="32" width="16" height="16"/>
+    <rect x="144" y="32" width="16" height="16"/>
+    
+    <rect x="32" y="96" width="16" height="16"/>
+    <rect x="64" y="96" width="16" height="16"/>
+    <rect x="96" y="96" width="16" height="16"/>
+    <rect x="128" y="96" width="16" height="16"/>
+    <rect x="176" y="96" width="16" height="16"/>
+    <rect x="208" y="96" width="16" height="16"/>
+    
+    <rect x="32" y="112" width="16" height="16"/>
+    <rect x="80" y="112" width="16" height="16"/>
+    <rect x="112" y="112" width="16" height="16"/>
+    <rect x="144" y="112" width="16" height="16"/>
+    <rect x="208" y="112" width="16" height="16"/>
+    
+    <rect x="32" y="128" width="16" height="16"/>
+    <rect x="64" y="128" width="16" height="16"/>
+    <rect x="96" y="128" width="16" height="16"/>
+    <rect x="128" y="128" width="16" height="16"/>
+    <rect x="160" y="128" width="16" height="16"/>
+    <rect x="208" y="128" width="16" height="16"/>
+    
+    <rect x="32" y="144" width="16" height="16"/>
+    <rect x="80" y="144" width="16" height="16"/>
+    <rect x="112" y="144" width="16" height="16"/>
+    <rect x="176" y="144" width="16" height="16"/>
+    
+    <rect x="96" y="176" width="16" height="16"/>
+    <rect x="128" y="176" width="16" height="16"/>
+    <rect x="160" y="176" width="16" height="16"/>
+    <rect x="176" y="176" width="16" height="16"/>
+    <rect x="208" y="176" width="16" height="16"/>
+    
+    <rect x="96" y="208" width="16" height="16"/>
+    <rect x="128" y="208" width="16" height="16"/>
+    <rect x="144" y="208" width="16" height="16"/>
+    <rect x="160" y="208" width="16" height="16"/>
+    <rect x="176" y="208" width="16" height="16"/>
+  </g>
+  
+  <!-- TON Logo in the center -->
+  <g transform="translate(108, 108)">
+    <circle cx="20" cy="20" r="24" fill="white"/>
+    <path d="M20,4 C11.2,4 4,11.2 4,20 C4,28.8 11.2,36 20,36 C28.8,36 36,28.8 36,20 C36,11.2 28.8,4 20,4 Z M28,26 L20,22 L12,26 L12,14 L28,14 L28,26 Z" fill="#0098EA"/>
+  </g>
+</svg>

